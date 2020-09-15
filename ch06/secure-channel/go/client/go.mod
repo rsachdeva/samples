@@ -1,4 +1,4 @@
-module productinfo/client
+module client-secure-channel
 
 go 1.15
 
