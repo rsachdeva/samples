@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"runtime/debug"
 	"time"
 
 	"google.golang.org/grpc"
@@ -18,12 +19,31 @@ const (
 
 var addrs = []string{"localhost:50051", "localhost:50052"}
 
+// if e, ok := status.FromError(err); ok {
+//			switch e.Code() {
+//			case codes.PermissionDenied:
+//				fmt.Println(e.Message()) // this will print PERMISSION_DENIED_TEST
+//			case codes.Internal:
+//				fmt.Println("Has Internal Error")
+//			case codes.Aborted:
+//				fmt.Println("gRPC Aborted the call")
+//			default:
+//				fmt.Printf("in default %T\n", e.Proto())
+//				fmt.Println(e.Code(), e.Message())
+//			}
+//		}
+// 		eresult := errors.Unwrap(err)
+//		fmt.Printf("eresult is %v\n", eresult)
+// 	if e, ok := status.FromError(err); ok {
+//			fmt.Printf("in default\n %v\n", e.Message())
+//		}
 func callUnaryEcho(c ecpb.EchoClient, message string) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 	r, err := c.UnaryEcho(ctx, &ecpb.EchoRequest{Message: message})
 	if err != nil {
-		log.Fatalf("could not greet: %v", err)
+		debug.PrintStack()
+		log.Fatalf("could not greet: %+v", err)
 	}
 	fmt.Println(r.Message)
 }
@@ -68,7 +88,7 @@ func main() {
 
 type exampleResolverBuilder struct{}
 
-func (*exampleResolverBuilder) Build(target resolver.Target, cc resolver.ClientConn, opts resolver.BuildOption) (resolver.Resolver, error) {
+func (*exampleResolverBuilder) Build(target resolver.Target, cc resolver.ClientConn, opts resolver.BuildOptions) (resolver.Resolver, error) {
 	r := &exampleResolver{
 		target: target,
 		cc:     cc,
@@ -95,7 +115,7 @@ func (r *exampleResolver) start() {
 	}
 	r.cc.UpdateState(resolver.State{Addresses: addrs})
 }
-func (*exampleResolver) ResolveNow(o resolver.ResolveNowOption) {}
+func (*exampleResolver) ResolveNow(o resolver.ResolveNowOptions) {}
 func (*exampleResolver) Close()                                 {}
 
 func init() {
