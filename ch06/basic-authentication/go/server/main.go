@@ -12,7 +12,7 @@ import (
 	"errors"
 	wrapper "github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/google/uuid"
-	pb "github.com/grpc-up-and-running/samples/ch02/productinfo/go/product_info"
+	pb "server-basic-authentication/ecommerce"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials"

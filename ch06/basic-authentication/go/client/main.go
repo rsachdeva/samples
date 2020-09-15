@@ -8,13 +8,14 @@ package main
 import (
 	"context"
 	"encoding/base64"
-	"google.golang.org/grpc/credentials"
+	"fmt"
 	"log"
 	"path/filepath"
 	"time"
 
-	wrapper "github.com/golang/protobuf/ptypes/wrappers"
-	pb "github.com/grpc-up-and-running/samples/ch02/productinfo/go/product_info"
+	"google.golang.org/grpc/credentials"
+
+	pb "client-basic-authentication/ecommerce"
 	"google.golang.org/grpc"
 )
 
@@ -24,7 +25,9 @@ const (
 
 func main() {
 
-	creds, err := credentials.NewClientTLSFromFile(filepath.Join("ch06", "secure-channel", "certs", "server.crt"),
+	currentPath := filepath.Join("secure-channel", "certs", "server.crt")
+	fmt.Printf("currentPath is %v\n", currentPath)
+	creds, err := credentials.NewClientTLSFromFile(filepath.Join("secure-channel", "certs", "server.crt"),
 		"localhost")
 	if err != nil {
 		log.Fatalf("failed to load credentials: %v", err)
@@ -59,7 +62,7 @@ func main() {
 	}
 	log.Printf("Product ID: %s added successfully", r.Value)
 
-	product, err := c.GetProduct(ctx, &wrapper.StringValue{Value: r.Value})
+	product, err := c.GetProduct(ctx, &pb.ProductID{Value: r.Value})
 	if err != nil {
 		log.Fatalf("Could not get product: %v", err)
 	}
