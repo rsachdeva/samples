@@ -8,7 +8,6 @@ package main
 import (
 	"context"
 	"encoding/base64"
-	"fmt"
 	"log"
 	"path/filepath"
 	"time"
@@ -25,9 +24,7 @@ const (
 
 func main() {
 
-	currentPath := filepath.Join("secure-channel", "certs", "server.crt")
-	fmt.Printf("currentPath is %v\n", currentPath)
-	creds, err := credentials.NewClientTLSFromFile(filepath.Join("secure-channel", "certs", "server.crt"),
+	creds, err := credentials.NewClientTLSFromFile(filepath.Join( "secure-channel", "certs", "server.crt"),
 		"localhost")
 	if err != nil {
 		log.Fatalf("failed to load credentials: %v", err)
@@ -62,7 +59,7 @@ func main() {
 	}
 	log.Printf("Product ID: %s added successfully", r.Value)
 
-	product, err := c.GetProduct(ctx, &pb.ProductID{Value: r.Value})
+	product, err := c.GetProduct(ctx, r)
 	if err != nil {
 		log.Fatalf("Could not get product: %v", err)
 	}

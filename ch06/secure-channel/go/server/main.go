@@ -9,6 +9,7 @@ import (
 	"context"
 	"crypto/tls"
 	"errors"
+	"fmt"
 	"log"
 	"net"
 	"path/filepath"
@@ -44,6 +45,7 @@ func (s *server) AddProduct(ctx context.Context, in *pb.Product) (*pb.ProductID,
 
 // GetProduct implements ecommerce.GetProduct
 func (s *server) GetProduct(ctx context.Context, in *pb.ProductID) (*pb.Product, error) {
+	fmt.Printf("in *pb.ProductID is %v\n", in)
 	value, exists := s.productMap[in.Value]
 	if exists {
 		return value, nil

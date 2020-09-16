@@ -10,18 +10,18 @@ import (
 	"crypto/tls"
 	"encoding/base64"
 	"errors"
-	wrapper "github.com/golang/protobuf/ptypes/wrappers"
+	"log"
+	"net"
+	"path/filepath"
+	"strings"
+
 	"github.com/google/uuid"
-	pb "server-basic-authentication/ecommerce"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
-	"log"
-	"net"
-	"path/filepath"
-	"strings"
+	pb "server-basic-authentication/ecommerce"
 )
 
 // server is used to implement ecommerce/product_info.
@@ -36,7 +36,7 @@ var (
 )
 
 // AddProduct implements ecommerce.AddProduct
-func (s *server) AddProduct(ctx context.Context, in *pb.Product) (*wrapper.StringValue, error) {
+func (s *server) AddProduct(ctx context.Context, in *pb.Product) (*pb.ProductID, error) {
 	out, err := uuid.NewUUID()
 	if err != nil {
 		log.Fatal(err)
@@ -46,11 +46,11 @@ func (s *server) AddProduct(ctx context.Context, in *pb.Product) (*wrapper.Strin
 		s.productMap = make(map[string]*pb.Product)
 	}
 	s.productMap[in.Id] = in
-	return &wrapper.StringValue{Value: in.Id}, nil
+	return &pb.ProductID{Value: in.Id}, nil
 }
 
 // GetProduct implements ecommerce.GetProduct
-func (s *server) GetProduct(ctx context.Context, in *wrapper.StringValue) (*pb.Product, error) {
+func (s *server) GetProduct(ctx context.Context, in *pb.ProductID) (*pb.Product, error) {
 	value, exists := s.productMap[in.Value]
 	if exists {
 		return value, nil
@@ -59,8 +59,8 @@ func (s *server) GetProduct(ctx context.Context, in *wrapper.StringValue) (*pb.P
 }
 
 func main() {
-	cert, err := tls.LoadX509KeyPair(filepath.Join("ch06", "secure-channel", "certs", "server.crt"),
-		filepath.Join("ch06", "secure-channel", "certs", "server.key"))
+	cert, err := tls.LoadX509KeyPair(filepath.Join( "secure-channel", "certs", "server.crt"),
+		filepath.Join( "secure-channel", "certs", "server.key"))
 	if err != nil {
 		log.Fatalf("failed to load key pair: %s", err)
 	}
@@ -92,6 +92,7 @@ func valid(authorization []string) bool {
 		return false
 	}
 	token := strings.TrimPrefix(authorization[0], "Basic ")
+    log.Printf("token from authorization header encoded sent over TLS is already unencrypted %v", token)
 	return token == base64.StdEncoding.EncodeToString([]byte("admin:admin"))
 }
 
