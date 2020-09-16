@@ -7,22 +7,22 @@ package main
 
 import (
 	"context"
-	"google.golang.org/grpc/credentials"
-	"google.golang.org/grpc/credentials/oauth"
 	"log"
 	"path/filepath"
 	"time"
 
-	wrapper "github.com/golang/protobuf/ptypes/wrappers"
-	pb "github.com/grpc-up-and-running/samples/ch02/productinfo/go/product_info"
+	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/credentials/oauth"
+
+	pb "client-oauth/ecommerce"
 	"golang.org/x/oauth2"
 	"google.golang.org/grpc"
 )
 
-const (
+var (
 	address = "localhost:50051"
 	hostname = "localhost"
-	crtFile = filepath.Join("ch06", "secure-channel", "certs", "server.crt")
+	crtFile = filepath.Join( "secure-channel", "certs", "server.crt")
 )
 
 func main() {
@@ -58,8 +58,8 @@ func main() {
 		log.Fatalf("Could not add product: %v", err)
 	}
 	log.Printf("Product ID: %s added successfully", r.Value)
-
-	product, err := c.GetProduct(ctx, &wrapper.StringValue{Value: r.Value})
+    // in *ProductID
+	product, err := c.GetProduct(ctx, r)
 	if err != nil {
 		log.Fatalf("Could not get product: %v", err)
 	}

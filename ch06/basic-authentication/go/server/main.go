@@ -10,6 +10,7 @@ import (
 	"crypto/tls"
 	"encoding/base64"
 	"errors"
+	"fmt"
 	"log"
 	"net"
 	"path/filepath"
@@ -106,6 +107,7 @@ func ensureValidBasicCredentials(ctx context.Context, req interface{}, info *grp
 	if !ok {
 		return nil, errMissingMetadata
 	}
+	fmt.Printf("md is", md)
 	// The keys within metadata.MD are normalized to lowercase.
 	// See: https://godoc.org/google.golang.org/grpc/metadata#New
 	if !valid(md["authorization"]) {
