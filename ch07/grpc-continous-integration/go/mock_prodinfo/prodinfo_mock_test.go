@@ -63,7 +63,7 @@ func testAddProduct(t *testing.T, client pb.ProductInfoClient) {
 
 	r, err := client.AddProduct(ctx, &pb.Product{Name: name, Description: description, Price: price})
 
-	if err != nil || r.GetValue() != "Product:Sumsung dS10" {
+	if err != nil || r.GetValue() != "Product:Sumsung S10" {
 		t.Errorf("mocking failed")
 	}
 	t.Log("Reply : ", r.GetValue())
