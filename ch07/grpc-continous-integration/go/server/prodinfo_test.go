@@ -65,7 +65,7 @@ func initGRPCServerBuffConn() {
 // Conventional test that starts a gRPC server and client test the service with RPC
 func TestServer_AddProduct(t *testing.T) {
 	initGRPCServerHTTP2() // Starting a conventional gRPC server runs on HTTP2
-	conn, err := grpc.Dial(address, grpc.WithInsecure())
+	conn, err := grpc.Dial("localhost:50051", grpc.WithInsecure(), grpc.WithBlock())
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
