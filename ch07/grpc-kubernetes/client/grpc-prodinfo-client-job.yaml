@@ -11,4 +11,4 @@ spec:
       - name: grpc-productinfo-client
         image: kasunindrasiri/grpc-productinfo-client
       restartPolicy: Never
-  backoffLimit: 4
+  backoffLimit: 5

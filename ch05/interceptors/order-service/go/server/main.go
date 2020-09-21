@@ -2,16 +2,18 @@ package main
 
 import (
 	"context"
-	"github.com/golang/protobuf/ptypes/wrappers"
-	wrapper "github.com/golang/protobuf/ptypes/wrappers"
-	pb "github.com/grpc-up-and-running/samples/ch05/interceptors/order-service/go/order-service-gen"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/reflection"
 	"io"
 	"log"
 	"net"
 	"strings"
 	"time"
+
+	"github.com/golang/protobuf/ptypes/wrappers"
+	wrapper "github.com/golang/protobuf/ptypes/wrappers"
+	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
+	pb "github.com/grpc-up-and-running/samples/ch05/interceptors/order-service/go/order-service-gen"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 )
 
 const (
@@ -141,6 +143,22 @@ func orderUnaryServerInterceptor(ctx context.Context, req interface{}, info *grp
 	return m, err
 }
 
+func orderUnaryServerInterceptor2(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+	// Pre-processing logic
+	// Gets info about the current RPC call by examining the args passed in
+	log.Println("======= [Server Interceptor2] ", info.FullMethod)
+	log.Printf(" Pre Proc Message2 : %s", req)
+
+
+	// Invoking the handler to complete the normal execution of a unary RPC.
+	m, err := handler(ctx, req)
+
+	// Post processing logic
+	log.Printf(" Post Proc Message2 : %s", m)
+	return m, err
+}
+
+
 
 // wrappedStream wraps around the embedded grpc.ServerStream, and intercepts the RecvMsg and
 // SendMsg method call.
@@ -182,7 +200,16 @@ func main() {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	s := grpc.NewServer(
-		grpc.UnaryInterceptor(orderUnaryServerInterceptor),
+		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
+			// grpc_ctxtags.UnaryServerInterceptor(),
+			// grpc_opentracing.UnaryServerInterceptor(),
+			// grpc_prometheus.UnaryServerInterceptor,
+			// grpc_zap.UnaryServerInterceptor(zapLogger),
+			// grpc_auth.UnaryServerInterceptor(myAuthFunction),
+			// grpc_recovery.UnaryServerInterceptor(),
+			orderUnaryServerInterceptor,
+			orderUnaryServerInterceptor2,
+		)),
 		grpc.StreamInterceptor(orderServerStreamInterceptor))
 	pb.RegisterOrderManagementServer(s, &server{})
 	// Register reflection service on gRPC server.

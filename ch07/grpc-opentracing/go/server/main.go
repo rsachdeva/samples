@@ -8,16 +8,17 @@ package main
 import (
 	"context"
 	"errors"
-	grpc_opentracing "github.com/grpc-ecosystem/go-grpc-middleware/tracing/opentracing"
-	"github.com/opentracing/opentracing-go"
 	"log"
 	"net"
+
+	grpc_opentracing "github.com/grpc-ecosystem/go-grpc-middleware/tracing/opentracing"
+	"github.com/opentracing/opentracing-go"
 
 	wrapper "github.com/golang/protobuf/ptypes/wrappers"
 	"github.com/google/uuid"
 	pb "github.com/grpc-up-and-running/samples/ch07/grpc-opentracing/go/proto"
-	"github.com/grpc-up-and-running/samples/ch07/grpc-opentracing/go/tracer"
 	"google.golang.org/grpc"
+	"server-opentracing/tracer"
 )
 
 const (
