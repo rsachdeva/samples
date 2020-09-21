@@ -5,6 +5,7 @@ import (
 	"fmt"
 	pb "github.com/grpc-up-and-running/samples/ch05/interceptors/order-service/go/order-service-gen"
 	hwpb "google.golang.org/grpc/examples/helloworld/helloworld"
+	hcpb "client-multiplexing/healthcheck"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/status"
 	"log"
@@ -42,7 +43,6 @@ func main() {
 	}
 
 
-
 	// *********** Calling the Greeter gRPC service  **********
 	helloClient := hwpb.NewGreeterClient(conn)
 
@@ -54,6 +54,17 @@ func main() {
 	}
 	fmt.Println("Greeting: ", helloResponse.Message)
 
+
+	// *********** Calling the HealthCheck gRPC service  **********
+	healthClient := hcpb.NewHealthClient(conn)
+
+	hcCtx, hcCancel := context.WithTimeout(context.Background(), time.Second)
+	defer hcCancel()
+	healthResponse, err := healthClient.Check(hcCtx, &hcpb.HealthCheckRequest{})   // SayHello(hwcCtx, &hwpb.HelloRequest{Name: "gRPC Up and Running!"})
+	if err != nil {
+		log.Fatalf("healthClient.Check(_) = _, %v", err)
+	}
+	fmt.Println("Healthy status: ", healthResponse.Status)
 
 	// Get Order
 	//retrievedOrder , err := orderManagementClient.GetOrder(ctx, &wrapper.StringValue{Value: "106"})

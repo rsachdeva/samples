@@ -5,9 +5,13 @@ import (
 	"github.com/golang/protobuf/ptypes/wrappers"
 	wrapper "github.com/golang/protobuf/ptypes/wrappers"
 	ordermgt_pb "github.com/grpc-up-and-running/samples/ch05/interceptors/order-service/go/order-service-gen"
+	"google.golang.org/grpc/codes"
 	hello_pb "google.golang.org/grpc/examples/helloworld/helloworld"
+	health_pb "server-multiplexing/healthcheck"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
+	"google.golang.org/grpc/status"
+
 	"io"
 	"log"
 	"net"
@@ -28,6 +32,15 @@ type helloServer struct{}
 func (s *helloServer) SayHello(ctx context.Context, in *hello_pb.HelloRequest) (*hello_pb.HelloReply, error) {
 	log.Printf("Greeter Service - SayHello RPC")
 	return &hello_pb.HelloReply{Message: "Hello " + in.Name}, nil
+}
+
+type healthServer struct {}
+
+func (*healthServer) Check(context.Context, *health_pb.HealthCheckRequest) (*health_pb.HealthCheckResponse, error) {
+	return &health_pb.HealthCheckResponse{Status: health_pb.HealthCheckResponse_SERVING}, nil
+}
+func (*healthServer) Watch(*health_pb.HealthCheckRequest, health_pb.Health_WatchServer) error {
+	return status.Errorf(codes.Unimplemented, "method Watch not implemented")
 }
 
 type orderMgtServer struct {
@@ -150,6 +163,8 @@ func main() {
 
 	// Register Greeter Service on gRPC orderMgtServer
 	hello_pb.RegisterGreeterServer(grpcServer, &helloServer{})
+
+	health_pb.RegisterHealthServer(grpcServer, &healthServer{})
 
 	// Register reflection service on gRPC orderMgtServer.
 	reflection.Register(grpcServer)
